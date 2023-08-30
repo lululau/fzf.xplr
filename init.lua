@@ -45,42 +45,62 @@ local function fzf(args, paths)
   end
 end
 
-local function setup(args)
+local function setup()
   local xplr = xplr
 
-  args = args or {}
-  args.mode = args.mode or "default"
-  args.key = args.key or "ctrl-f"
-  args.bin = args.bin or "fzf"
-  args.args = args.args or ""
-
-  if args.recursive == nil then
-    args.recursive = false
-  end
+  args = {}
+  args.mode = "default"
+  args.bin = "fzf"
+  args.args = ""
 
   if args.enter_dir == nil then
     args.enter_dir = false
   end
 
-  xplr.config.modes.builtin[args.mode].key_bindings.on_key[args.key] = {
-    help = "fzf search",
+  xplr.config.modes.builtin[args.mode].key_bindings.on_key["alt-c"] = {
+    help = "fzf search (non-recursively)",
     messages = {
       "PopMode",
       { CallLua = "custom.fzf.search" },
     },
   }
 
+  xplr.config.modes.builtin[args.mode].key_bindings.on_key["ctrl-t"] = {
+    help = "fzf search recursively",
+    messages = {
+      "PopMode",
+      { CallLua = "custom.fzf.search_recursively" },
+    },
+  }
+
+  xplr.config.modes.builtin[args.mode].key_bindings.on_key["alt-j"] = {
+    help = "fzf autojump",
+    messages = {
+      "PopMode",
+      { CallLua = "custom.fzf.autojump" },
+    },
+  }
+
+
   xplr.fn.custom.fzf = {}
+
   xplr.fn.custom.fzf.search = function(app)
-    if args.recursive then
-      return fzf(args)
-    else
-      local paths = {}
-      for _, n in ipairs(app.directory_buffer.nodes) do
-        table.insert(paths, n.relative_path)
-      end
-      return fzf(args, table.concat(paths, "\n"))
+    local paths = {}
+    for _, n in ipairs(app.directory_buffer.nodes) do
+      table.insert(paths, n.relative_path)
     end
+    args.bin = "fzf"
+    return fzf(args, table.concat(paths, "\n"))
+  end
+
+  xplr.fn.custom.fzf.search_recursively = function(app)
+    args.bin = "fzf"
+    return fzf(args)
+  end
+
+  xplr.fn.custom.fzf.autojump = function(app)
+    args.bin = "autojump -s | sed -n '/^_______/!p; /^_______/q'  | tac | cut -d$'\\t' -f2; | fzf "
+    return fzf(args)
   end
 end
 
