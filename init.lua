@@ -99,7 +99,7 @@ local function setup()
   end
 
   xplr.fn.custom.fzf.autojump = function(app)
-    args.bin = "autojump -s | sed -n '/^_______/!p; /^_______/q'  | tac | cut -d$'\\t' -f2; | fzf "
+    args.bin = "autojump-fzf"
     return fzf(args)
   end
 end
