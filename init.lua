@@ -52,10 +52,7 @@ local function setup()
   args.mode = "default"
   args.bin = "fzf"
   args.args = ""
-
-  if args.enter_dir == nil then
-    args.enter_dir = false
-  end
+  args.enter_dir = true
 
   xplr.config.modes.builtin[args.mode].key_bindings.on_key["alt-c"] = {
     help = "fzf search (non-recursively)",
